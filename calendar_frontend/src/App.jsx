@@ -19,15 +19,28 @@ const COLORS = {
 }
 
 function safeRandomUUID() {
-  if (typeof crypto !== 'undefined' && crypto.randomUUID) {
-    return crypto.randomUUID()
+  // Prefer Web Crypto if available (browser, Node 19+ with webcrypto in globalThis)
+  const g = typeof globalThis !== 'undefined' ? globalThis : typeof window !== 'undefined' ? window : {}
+  const c = g.crypto || (g.require?.('crypto')?.webcrypto) || null
+
+  if (c && typeof c.randomUUID === 'function') {
+    return c.randomUUID()
   }
-  // Fallback simple UUID v4-ish
-  const rnd = (n) => (crypto && crypto.getRandomValues ? crypto.getRandomValues(new Uint8Array(n)) : Array.from({ length: n }, () => Math.floor(Math.random() * 256)))
-  const bytes = rnd(16)
-  // Set version and variant bits if we have bytes
-  if (bytes[6] !== undefined) bytes[6] = (bytes[6] & 0x0f) | 0x40
-  if (bytes[8] !== undefined) bytes[8] = (bytes[8] & 0x3f) | 0x80
+
+  // Use getRandomValues if available
+  let bytes = null
+  if (c && typeof c.getRandomValues === 'function') {
+    bytes = new Uint8Array(16)
+    c.getRandomValues(bytes)
+  } else {
+    // Lightweight Math.random fallback (not cryptographically secure)
+    bytes = Uint8Array.from({ length: 16 }, () => Math.floor(Math.random() * 256))
+  }
+
+  // Set version and variant
+  bytes[6] = (bytes[6] & 0x0f) | 0x40
+  bytes[8] = (bytes[8] & 0x3f) | 0x80
+
   const toHex = (b) => Array.from(b, (x) => x.toString(16).padStart(2, '0')).join('')
   const hex = toHex(bytes)
   return `${hex.substring(0, 8)}-${hex.substring(8, 12)}-${hex.substring(12, 16)}-${hex.substring(16, 20)}-${hex.substring(20, 32)}`
