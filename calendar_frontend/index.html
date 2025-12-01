@@ -2,22 +2,16 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=1920, height=1080" />
-    <meta name="description" content="Tizen TV Application" />
+    <meta name="viewport" content="width=1920, height=1080, user-scalable=no" />
+    <meta name="description" content="Tizen TV Application - Calendar Scheduler" />
     <link rel="icon" type="image/png" href="/icon.png" />
     <title>calendar_frontend</title>
     <style>
-      body {
-        margin: 0;
-        padding: 0;
-        width: 1920px;
-        height: 1080px;
-        overflow: hidden;
-      }
+      body{ margin:0; padding:0; width:1920px; height:1080px; overflow:hidden; background:#f9fafb; }
     </style>
   </head>
   <body>
-    <div id="root"></div>
+    <div id="root" role="application" aria-label="Calendar Scheduler"></div>
     <script type="module" src="/src/main.jsx"></script>
   </body>
 </html>
